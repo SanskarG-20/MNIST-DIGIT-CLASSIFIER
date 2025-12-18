@@ -46,12 +46,25 @@ def load_model():
 
 model = load_model()
 
+# Session state for keeping a small prediction history
+if "history" not in st.session_state:
+    st.session_state["history"] = []
+
 
 # -----------------------------------------
 # TITLE
 # -----------------------------------------
 st.title("🧠 MNIST Digit Classifier — Enhanced Edition")
 st.write("Draw, upload, or capture a digit to classify it instantly.")
+with st.expander("ℹ️ How to use this app", expanded=True):
+    st.markdown(
+        """
+        - **Draw Digit**: Use your mouse/finger to draw a digit (0–9) on the canvas.
+        - **Upload Image**: Upload a clear, centered grayscale/handwritten digit.
+        - **Webcam Capture**: Enable webcam in the sidebar and hold a digit up to the camera.
+        - **Tip**: High‑contrast, centered digits give the best results.
+        """
+    )
 
 
 # -----------------------------------------
@@ -104,10 +117,29 @@ with tab1:
 
                 st.metric("Predicted Digit", int(pred_label))
 
+                # Save to history
+                st.session_state["history"].append(
+                    {
+                        "Source": "Draw",
+                        "Predicted Digit": int(pred_label),
+                        "Confidence": float(pred[0][pred_label]),
+                    }
+                )
+
                 # Animated confidence bars
                 st.write("### 📊 Confidence Level")
                 for i in range(10):
                     st.progress(float(pred[0][i]))
+
+                # Top‑3 predictions table
+                top3_idx = np.argsort(pred[0])[::-1][:3]
+                st.write("### 🏆 Top 3 Predictions")
+                st.table(
+                    {
+                        "Digit": [int(i) for i in top3_idx],
+                        "Confidence": [float(pred[0][i]) for i in top3_idx],
+                    }
+                )
 
                 if show_heatmap:
                     st.write("### 🔥 Confidence Scores")
@@ -136,6 +168,15 @@ with tab2:
 
         st.metric("Predicted Digit", int(pred_label))
 
+        # Save to history
+        st.session_state["history"].append(
+            {
+                "Source": "Upload",
+                "Predicted Digit": int(pred_label),
+                "Confidence": float(pred[0][pred_label]),
+            }
+        )
+
         st.write("### 📊 Confidence Scores")
         st.json({str(i): float(pred[0][i]) for i in range(10)})
 
@@ -163,7 +204,25 @@ with tab3:
 
             st.metric("Predicted Digit", int(pred_label))
 
+            # Save to history
+            st.session_state["history"].append(
+                {
+                    "Source": "Webcam",
+                    "Predicted Digit": int(pred_label),
+                    "Confidence": float(pred[0][pred_label]),
+                }
+            )
+
             st.write("### 📊 Confidence Scores")
             st.json({str(i): float(pred[0][i]) for i in range(10)})
     else:
         st.info("Enable *Use Webcam* in the sidebar to activate this feature.")
+
+
+# ===================================================
+# PREDICTION HISTORY
+# ===================================================
+if st.session_state["history"]:
+    st.markdown("---")
+    st.subheader("📜 Prediction History (this session)")
+    st.dataframe(st.session_state["history"])
