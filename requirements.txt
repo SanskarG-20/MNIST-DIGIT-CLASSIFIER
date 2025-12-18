@@ -2,5 +2,4 @@ streamlit
 numpy
 Pillow
 streamlit-drawable-canvas
-tensorflow-cpu==2.12.0
-protobuf==3.20.3
+tensorflow==2.20.0
