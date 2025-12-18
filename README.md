@@ -17,7 +17,7 @@ https://mnist-digit-classifier-69.streamlit.app
 
 ## Screenshots
 
-*(Recommended: Add actual screenshots of the app interface, drawing canvas, prediction results, etc.)*
+<img width="1365" height="637" alt="image" src="https://github.com/user-attachments/assets/3e5b2713-0d82-44ed-abcb-83b765d59905" />
 
 ## Tech Stack
 
