@@ -50,6 +50,10 @@ model = load_model()
 if "history" not in st.session_state:
     st.session_state["history"] = []
 
+# Session state for canvas key (used to clear canvas)
+if "canvas_key" not in st.session_state:
+    st.session_state["canvas_key"] = 0
+
 
 # -----------------------------------------
 # TITLE
@@ -86,7 +90,7 @@ with tab1:
 
         # Clear canvas button
         if st.button("🧹 Clear Canvas"):
-            st.experimental_rerun()
+            st.session_state["canvas_key"] += 1
 
         canvas = st_canvas(
             fill_color="white",
@@ -96,7 +100,7 @@ with tab1:
             width=canvas_res,
             height=canvas_res,
             drawing_mode="freedraw",
-            key="canvas_draw",
+            key=f"canvas_draw_{st.session_state['canvas_key']}",
         )
 
     with right:
