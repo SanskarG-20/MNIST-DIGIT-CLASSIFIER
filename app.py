@@ -5,17 +5,11 @@ from PIL import Image, ImageOps
 from streamlit_drawable_canvas import st_canvas  # type: ignore[import]
 import time
 
-# -----------------------------------------
-# PAGE CONFIG
-# -----------------------------------------
 st.set_page_config(
     page_title="MNIST Digit Classifier",
     layout="wide",
 )
 
-# -----------------------------------------
-# SIDEBAR SETTINGS
-# -----------------------------------------
 st.sidebar.title("⚙️ Settings")
 
 dark_mode = st.sidebar.checkbox("🌙 Dark Mode", value=False)
@@ -24,7 +18,6 @@ canvas_res = st.sidebar.selectbox("🖼️ Canvas Resolution", [200, 300, 400], 
 show_heatmap = st.sidebar.checkbox("🔥 Show Confidence Heatmap", value=True)
 use_webcam = st.sidebar.checkbox("📷 Use Webcam (optional)", value=False)
 
-# DARK MODE CSS
 if dark_mode:
     st.markdown(
         """
@@ -36,28 +29,19 @@ if dark_mode:
         """,
         unsafe_allow_html=True
     )
-
-# -----------------------------------------
-# LOAD MODEL
-# -----------------------------------------
+    
 @st.cache_resource
 def load_model():
     return tf.keras.models.load_model("mnist_model.keras")
 
 model = load_model()
 
-# Session state for keeping a small prediction history
 if "history" not in st.session_state:
     st.session_state["history"] = []
 
-# Session state for canvas key (used to clear canvas)
 if "canvas_key" not in st.session_state:
     st.session_state["canvas_key"] = 0
 
-
-# -----------------------------------------
-# TITLE
-# -----------------------------------------
 st.title("🧠 MNIST Digit Classifier — Enhanced Edition")
 st.write("Draw, upload, or capture a digit to classify it instantly.")
 with st.expander("ℹ️ How to use this app", expanded=True):
@@ -70,17 +54,8 @@ with st.expander("ℹ️ How to use this app", expanded=True):
         """
     )
 
-
-# -----------------------------------------
-# TABS
-# -----------------------------------------
 tab1, tab2, tab3 = st.tabs(["✏️ Draw Digit", "📤 Upload Image", "📷 Webcam Capture"])
 
-
-
-# ===================================================
-# TAB 1 — DRAW DIGIT
-# ===================================================
 with tab1:
 
     left, right = st.columns([1.2, 1])
@@ -88,7 +63,6 @@ with tab1:
     with left:
         st.subheader("✏️ Draw a digit")
 
-        # Clear canvas button
         if st.button("🧹 Clear Canvas"):
             st.session_state["canvas_key"] += 1
 
@@ -130,12 +104,10 @@ with tab1:
                     }
                 )
 
-                # Animated confidence bars
                 st.write("### 📊 Confidence Level")
                 for i in range(10):
                     st.progress(float(pred[0][i]))
 
-                # Top‑3 predictions table
                 top3_idx = np.argsort(pred[0])[::-1][:3]
                 st.write("### 🏆 Top 3 Predictions")
                 st.table(
@@ -149,11 +121,6 @@ with tab1:
                     st.write("### 🔥 Confidence Scores")
                     st.json({str(i): float(pred[0][i]) for i in range(10)})
 
-
-
-# ===================================================
-# TAB 2 — UPLOAD IMAGE
-# ===================================================
 with tab2:
     st.subheader("📤 Upload a digit image")
 
@@ -172,7 +139,6 @@ with tab2:
 
         st.metric("Predicted Digit", int(pred_label))
 
-        # Save to history
         st.session_state["history"].append(
             {
                 "Source": "Upload",
@@ -185,10 +151,6 @@ with tab2:
         st.json({str(i): float(pred[0][i]) for i in range(10)})
 
 
-
-# ===================================================
-# TAB 3 — WEBCAM INPUT (Optional)
-# ===================================================
 with tab3:
     st.subheader("📷 Capture Digit From Webcam")
 
@@ -222,11 +184,8 @@ with tab3:
     else:
         st.info("Enable *Use Webcam* in the sidebar to activate this feature.")
 
-
-# ===================================================
-# PREDICTION HISTORY
-# ===================================================
 if st.session_state["history"]:
     st.markdown("---")
     st.subheader("📜 Prediction History (this session)")
     st.dataframe(st.session_state["history"])
+
