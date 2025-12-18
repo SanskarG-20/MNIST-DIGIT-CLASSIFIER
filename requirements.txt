@@ -1,5 +1,5 @@
 streamlit
 numpy
-pillow
+Pillow
 streamlit-drawable-canvas
-onnxruntime
+tensorflow==2.17.0
